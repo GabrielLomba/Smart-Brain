@@ -5,12 +5,16 @@ import {
   DETECT_IMAGE_CLICK,
   CHANGE_CURRENT_IMAGE_SIZE,
   CHANGE_ROUTE,
-  SIGN_IN_USER,
-  REGISTER_USER,
   SIGN_OUT_USER,
   REQUEST_FACE_DETECTION_PENDING,
   REQUEST_FACE_DETECTION_SUCCESS,
-  REQUEST_FACE_DETECTION_ERROR
+  REQUEST_FACE_DETECTION_ERROR,
+  REGISTER_USER_PENDING,
+  REGISTER_USER_SUCCESS,
+  REGISTER_USER_FAIL,
+  SIGN_IN_USER_PENDING,
+  SIGN_IN_USER_SUCCESS,
+  SIGN_IN_USER_FAIL
 } from './constants';
 
 const app = new Clarifai.App({
@@ -57,9 +61,23 @@ export const requestFaceDetection = () => (dispatch, getState) => {
     .catch(error => dispatch({ type: REQUEST_FACE_DETECTION_ERROR, payload: error }));
 }
 
-export const signInUser = () => (dispatch) => {
-  dispatch({ type: SIGN_IN_USER });
-  dispatch(changeRoute('home'));
+export const signInUser = (user) => (dispatch) => {
+  dispatch({ type: SIGN_IN_USER_PENDING });
+
+  fetch('http://localhost:3001/signin', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
+    .then(response => {
+      if(response.status >= 400) {
+        if(response.status === 401) {
+          throw Error('Invalid username and password combination.');
+        } else {
+          throw Error('Unknown error');
+        }
+      } else {
+        dispatch({ type: SIGN_IN_USER_SUCCESS, payload: response });
+        dispatch(changeRoute('home'));
+      }
+    })
+    .catch(err => dispatch({ type: SIGN_IN_USER_FAIL, payload: err.message }));
 }
 
 export const signOutUser = () => (dispatch) => {
@@ -68,9 +86,17 @@ export const signOutUser = () => (dispatch) => {
 }
 
 export const registerUser = (user) => (dispatch) => {
-  dispatch({
-    type: REGISTER_USER,
-    payload: user
-  });
-  dispatch(changeRoute('home'));
+  dispatch({ type: REGISTER_USER_PENDING });
+
+  fetch('http://localhost:3001/register', { method: 'POST', body:  JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
+    .then(response => response.json())
+    .then(user => {
+      if(user.status >= 400) {
+          throw Error('Unknown error');
+      } else {
+        dispatch({ type: REGISTER_USER_SUCCESS, payload: user });
+        dispatch(changeRoute('signin'));
+      }
+    })
+    .catch(err => dispatch({ type: REGISTER_USER_FAIL, payload: err.message }))
 };
