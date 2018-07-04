@@ -12,7 +12,10 @@ import {
   REGISTER_USER_FAIL,
   SIGN_IN_USER_PENDING,
   SIGN_IN_USER_SUCCESS,
-  SIGN_IN_USER_FAIL
+  SIGN_IN_USER_FAIL,
+  UPDATE_USER_RANK_PENDING,
+  UPDATE_USER_RANK_SUCCESS,
+  UPDATE_USER_RANK_FAIL
 } from './constants';
 
 const initialStateImageUrlInput = {
@@ -121,6 +124,25 @@ export const registerUser = (state = initialStateRegisterUser, action = {}) => {
     case REGISTER_USER_SUCCESS:
       return { ...state, isPending: false, user: action.payload }
     case REGISTER_USER_FAIL:
+      return { ...state, isPending: false, error: action.payload }
+    default:
+      return state;
+  }
+}
+
+const initialStateUpdateUserRank = {
+  isPending: false,
+  entries: 0,
+  error: ''
+};
+
+export const updateUserRank = (state = initialStateUpdateUserRank, action = {}) => {
+  switch (action.type) {
+    case UPDATE_USER_RANK_PENDING:
+      return { ...state, isPending: true };
+    case UPDATE_USER_RANK_SUCCESS:
+      return { ...state, isPending: false, entries: action.payload }
+    case UPDATE_USER_RANK_FAIL:
       return { ...state, isPending: false, error: action.payload }
     default:
       return state;

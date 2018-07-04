@@ -14,7 +14,10 @@ import {
   REGISTER_USER_FAIL,
   SIGN_IN_USER_PENDING,
   SIGN_IN_USER_SUCCESS,
-  SIGN_IN_USER_FAIL
+  SIGN_IN_USER_FAIL,
+  UPDATE_USER_RANK_PENDING,
+  UPDATE_USER_RANK_SUCCESS,
+  UPDATE_USER_RANK_FAIL
 } from './constants';
 
 const app = new Clarifai.App({
@@ -29,13 +32,36 @@ export const setImageUrlInputField = (input) => ({
 export const detectImage = () => (dispatch, getState) => {
   const { searchImage } = getState();
 
-  dispatch({ type: DETECT_IMAGE_CLICK, payload: searchImage.imageUrlInput});
+  dispatch({ type: DETECT_IMAGE_CLICK, payload: searchImage.imageUrlInput });
 };
 
 export const setCurrentImageSize = (width, height) => (dispatch) => {
-  dispatch({ type: CHANGE_CURRENT_IMAGE_SIZE, payload: { width, height }});
+  dispatch({ type: CHANGE_CURRENT_IMAGE_SIZE, payload: { width, height } });
   dispatch(requestFaceDetection());
 };
+
+export const updateUserRank = () => (dispatch, getState) => {
+  const { signInOutUser } = getState();
+
+  dispatch({ type: UPDATE_USER_RANK_PENDING });
+
+  fetch('http://localhost:3001/image', {
+    method: 'PUT',
+    body: JSON.stringify({ 'id': signInOutUser.user.id }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(response => {
+      if (response.status >= 400) {
+        throw Error('Unknown error');
+      } else {
+        return response.json();
+      }
+    })
+    .then(entriesObj => {
+      dispatch({ type: UPDATE_USER_RANK_SUCCESS, payload: entriesObj.entries });
+    })
+    .catch(err => dispatch({ type: UPDATE_USER_RANK_FAIL, payload: err.message }))
+}
 
 export const changeRoute = (route) => ({
   type: CHANGE_ROUTE,
@@ -66,16 +92,19 @@ export const signInUser = (user) => (dispatch) => {
 
   fetch('http://localhost:3001/signin', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
     .then(response => {
-      if(response.status >= 400) {
-        if(response.status === 401) {
+      if (response.status >= 400) {
+        if (response.status === 401) {
           throw Error('Invalid username and password combination.');
         } else {
           throw Error('Unknown error');
         }
       } else {
-        dispatch({ type: SIGN_IN_USER_SUCCESS, payload: response });
-        dispatch(changeRoute('home'));
+        return response.json();
       }
+    })
+    .then(user => {
+      dispatch({ type: SIGN_IN_USER_SUCCESS, payload: user });
+      dispatch(changeRoute('home'));
     })
     .catch(err => dispatch({ type: SIGN_IN_USER_FAIL, payload: err.message }));
 }
@@ -88,11 +117,11 @@ export const signOutUser = () => (dispatch) => {
 export const registerUser = (user) => (dispatch) => {
   dispatch({ type: REGISTER_USER_PENDING });
 
-  fetch('http://localhost:3001/register', { method: 'POST', body:  JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
+  fetch('http://localhost:3001/register', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
     .then(response => response.json())
     .then(user => {
-      if(user.status >= 400) {
-          throw Error('Unknown error');
+      if (user.status >= 400) {
+        throw Error('Unknown error');
       } else {
         dispatch({ type: REGISTER_USER_SUCCESS, payload: user });
         dispatch(changeRoute('signin'));

@@ -33,7 +33,9 @@ const particlesOptions = {
 const mapStateToProps = state => ({
   input: state.searchImage.imageUrlInput,
   error: state.requestFaceDetection.error,
-  route: state.changeRoute.route
+  route: state.changeRoute.route,
+  userName: state.signInOutUser.user.name,
+  userEntries: state.updateUserRank.entries
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -46,7 +48,7 @@ const mapDispatchToProps = dispatch => ({
 class App extends Component {
 
   render() {
-    const { route, onDetectImage, onImageUrlInputChange } = this.props;
+    const { route, onDetectImage, onImageUrlInputChange, userName, userEntries } = this.props;
     return (
       <div className="App">
         <Particles className='particles' params={particlesOptions} />
@@ -54,7 +56,7 @@ class App extends Component {
         {route === 'home'
           ? <div>
             <Logo />
-            <Rank />
+            <Rank name={userName} entries={userEntries}/>
             <ImageLinkForm onInputChange={onImageUrlInputChange} onSubmit={onDetectImage} />
             <FaceRecognition />
           </div>

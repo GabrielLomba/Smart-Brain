@@ -11,7 +11,8 @@ import {
   changeCurrentImageSize,
   requestFaceDetection,
   signInOutUser,
-  registerUser
+  registerUser,
+  updateUserRank
 } from './reducers';
 import './index.css';
 import App from './containers/App/App';
@@ -27,7 +28,8 @@ const rootReducer = combineReducers({
   changeCurrentImageSize,
   requestFaceDetection,
   signInOutUser,
-  registerUser
+  registerUser,
+  updateUserRank
 });
 const store = createStore(rootReducer, applyMiddleware(thunkMiddleware, logger));
 
