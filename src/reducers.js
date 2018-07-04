@@ -1,6 +1,7 @@
 import {
   CHANGE_IMAGE_URL_INPUT_FIELD,
   DETECT_IMAGE_CLICK,
+  CLEAR_IMAGE_URL,
   CHANGE_CURRENT_IMAGE_SIZE,
   CHANGE_ROUTE,
   SIGN_OUT_USER,
@@ -39,6 +40,8 @@ export const detectImage = (state = initialStateImageUrl, action = {}) => {
   switch (action.type) {
     case DETECT_IMAGE_CLICK:
       return { ...state, currentImageUrl: action.payload };
+    case CLEAR_IMAGE_URL:
+      return { ...state, currentImageUrl: '' }
     default:
       return state;
   }
@@ -105,7 +108,7 @@ export const signInOutUser = (state = initialStateSignInOut, action = {}) => {
     case SIGN_IN_USER_FAIL:
       return { ...state, isSignedIn: false, error: action.payload };
     case SIGN_OUT_USER:
-      return { ...state, isSignedIn: false };
+      return { ...state, isSignedIn: false, user: {} };
     default:
       return state;
   }

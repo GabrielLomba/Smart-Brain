@@ -3,6 +3,7 @@ import Clarifai from 'clarifai';
 import {
   CHANGE_IMAGE_URL_INPUT_FIELD,
   DETECT_IMAGE_CLICK,
+  CLEAR_IMAGE_URL,
   CHANGE_CURRENT_IMAGE_SIZE,
   CHANGE_ROUTE,
   SIGN_OUT_USER,
@@ -57,8 +58,8 @@ export const updateUserRank = () => (dispatch, getState) => {
         return response.json();
       }
     })
-    .then(entriesObj => {
-      dispatch({ type: UPDATE_USER_RANK_SUCCESS, payload: entriesObj.entries });
+    .then(entries => {
+      dispatch({ type: UPDATE_USER_RANK_SUCCESS, payload: entries });
     })
     .catch(err => dispatch({ type: UPDATE_USER_RANK_FAIL, payload: err.message }))
 }
@@ -104,6 +105,7 @@ export const signInUser = (user) => (dispatch) => {
     })
     .then(user => {
       dispatch({ type: SIGN_IN_USER_SUCCESS, payload: user });
+      dispatch({ type: UPDATE_USER_RANK_SUCCESS, payload: user.entries });
       dispatch(changeRoute('home'));
     })
     .catch(err => dispatch({ type: SIGN_IN_USER_FAIL, payload: err.message }));
@@ -111,6 +113,7 @@ export const signInUser = (user) => (dispatch) => {
 
 export const signOutUser = () => (dispatch) => {
   dispatch({ type: SIGN_OUT_USER });
+  dispatch({ type: CLEAR_IMAGE_URL });
   dispatch(changeRoute('signin'));
 }
 
