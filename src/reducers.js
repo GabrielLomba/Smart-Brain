@@ -102,7 +102,7 @@ const initialStateSignInOut = {
 export const signInOutUser = (state = initialStateSignInOut, action = {}) => {
   switch (action.type) {
     case SIGN_IN_USER_PENDING:
-      return { ...state, isSignedIn: false };
+      return { ...state, isSignedIn: false, error: '' };
     case SIGN_IN_USER_SUCCESS:
       return { ...state, isSignedIn: true, user: action.payload };
     case SIGN_IN_USER_FAIL:
@@ -123,7 +123,7 @@ const initialStateRegisterUser = {
 export const registerUser = (state = initialStateRegisterUser, action = {}) => {
   switch (action.type) {
     case REGISTER_USER_PENDING:
-      return { ...state, isPending: true };
+      return { ...state, isPending: true, error: '' };
     case REGISTER_USER_SUCCESS:
       return { ...state, isPending: false, user: action.payload }
     case REGISTER_USER_FAIL:

@@ -6,6 +6,10 @@ import {
   registerUser
 } from '../../actions';
 
+const mapStateToProps = state => ({
+  error: state.registerUser.error,
+});
+
 const mapDispatchToProps = dispatch => ({
   onRegisterUser: (user) => dispatch(registerUser(user))
 });
@@ -23,7 +27,7 @@ class Register extends Component {
   }
 
   render() {
-    const { onRegisterUser } = this.props;
+    const { onRegisterUser, error } = this.props;
     const { user } = this.state;
     return (
       <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow center">
@@ -54,6 +58,9 @@ class Register extends Component {
                 type="submit"
                 value="Register" />
             </div>
+            {error &&
+              <h3 className='f4 red'>{error}</h3>
+            }
           </div>
         </main>
       </article>
@@ -61,4 +68,4 @@ class Register extends Component {
   }
 }
 
-export default connect(null, mapDispatchToProps)(Register);
+export default connect(mapStateToProps, mapDispatchToProps)(Register);

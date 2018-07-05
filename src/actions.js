@@ -121,12 +121,12 @@ export const registerUser = (user) => (dispatch) => {
   dispatch({ type: REGISTER_USER_PENDING });
 
   fetch('http://localhost:3001/register', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
-    .then(response => response.json())
-    .then(user => {
-      if (user.status >= 400) {
-        throw Error('Unknown error');
+    .then(async response => {
+      const payload = await response.json();
+      if(response.status >= 400) {
+        throw Error(payload);
       } else {
-        dispatch({ type: REGISTER_USER_SUCCESS, payload: user });
+        dispatch({ type: REGISTER_USER_SUCCESS, payload });
         dispatch(changeRoute('signin'));
       }
     })
