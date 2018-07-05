@@ -1,5 +1,3 @@
-import Clarifai from 'clarifai';
-
 import {
   CHANGE_IMAGE_URL_INPUT_FIELD,
   DETECT_IMAGE_CLICK,
@@ -20,10 +18,6 @@ import {
   UPDATE_USER_RANK_SUCCESS,
   UPDATE_USER_RANK_FAIL
 } from './constants';
-
-const app = new Clarifai.App({
-  apiKey: 'f541ff5770dd47ccb8c47f05c93b8811'
-});
 
 export const setImageUrlInputField = (input) => ({
   type: CHANGE_IMAGE_URL_INPUT_FIELD,
@@ -74,7 +68,9 @@ export const requestFaceDetection = () => (dispatch, getState) => {
   const { currentImageWidth, currentImageHeight } = changeCurrentImageSize;
 
   dispatch({ type: REQUEST_FACE_DETECTION_PENDING });
-  app.models.predict(Clarifai.FACE_DETECT_MODEL, detectImage.currentImageUrl)
+  fetch('http://localhost:3001/imageUrl',
+    { method: 'POST', body: JSON.stringify({ 'url': detectImage.currentImageUrl }), headers: { 'Content-Type': 'application/json' } })
+    .then(response => response.json())
     .then(data => {
       const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
       const box = {
@@ -92,21 +88,20 @@ export const signInUser = (user) => (dispatch) => {
   dispatch({ type: SIGN_IN_USER_PENDING });
 
   fetch('http://localhost:3001/signin', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
-    .then(response => {
-      if (response.status >= 400) {
-        if (response.status === 401) {
-          throw Error('Invalid username and password combination.');
-        } else {
-          throw Error('Unknown error');
-        }
-      } else {
-        return response.json();
+    .then(async response => {
+      if (response.status === 401) {
+        throw Error('Invalid username and password combination.');
       }
-    })
-    .then(user => {
-      dispatch({ type: SIGN_IN_USER_SUCCESS, payload: user });
-      dispatch({ type: UPDATE_USER_RANK_SUCCESS, payload: user.entries });
-      dispatch(changeRoute('home'));
+
+      const payload = await response.json();
+
+      if (response.status >= 400) {
+        throw Error(payload);
+      } else {
+        dispatch({ type: SIGN_IN_USER_SUCCESS, payload: payload });
+        dispatch({ type: UPDATE_USER_RANK_SUCCESS, payload: payload.entries });
+        dispatch(changeRoute('home'));
+      }
     })
     .catch(err => dispatch({ type: SIGN_IN_USER_FAIL, payload: err.message }));
 }
@@ -123,7 +118,7 @@ export const registerUser = (user) => (dispatch) => {
   fetch('http://localhost:3001/register', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
     .then(async response => {
       const payload = await response.json();
-      if(response.status >= 400) {
+      if (response.status >= 400) {
         throw Error(payload);
       } else {
         dispatch({ type: REGISTER_USER_SUCCESS, payload });
