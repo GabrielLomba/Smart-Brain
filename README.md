@@ -1,3 +1,6 @@
+# Smart Brain
+Simple React app that uses face recognition technology and update users entries based on their number of submissions.
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
