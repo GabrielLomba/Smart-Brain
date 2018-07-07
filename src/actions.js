@@ -1,4 +1,5 @@
 import {
+  API_URL,
   CHANGE_IMAGE_URL_INPUT_FIELD,
   DETECT_IMAGE_CLICK,
   CLEAR_IMAGE_URL,
@@ -40,7 +41,7 @@ export const updateUserRank = () => (dispatch, getState) => {
 
   dispatch({ type: UPDATE_USER_RANK_PENDING });
 
-  fetch('http://localhost:3001/image', {
+  fetch(`${API_URL}/image`, {
     method: 'PUT',
     body: JSON.stringify({ 'id': signInOutUser.user.id }),
     headers: { 'Content-Type': 'application/json' }
@@ -68,7 +69,7 @@ export const requestFaceDetection = () => (dispatch, getState) => {
   const { currentImageWidth, currentImageHeight } = changeCurrentImageSize;
 
   dispatch({ type: REQUEST_FACE_DETECTION_PENDING });
-  fetch('http://localhost:3001/imageUrl',
+  fetch(`${API_URL}/imageUrl`,
     { method: 'POST', body: JSON.stringify({ 'url': detectImage.currentImageUrl }), headers: { 'Content-Type': 'application/json' } })
     .then(response => response.json())
     .then(data => {
@@ -87,7 +88,7 @@ export const requestFaceDetection = () => (dispatch, getState) => {
 export const signInUser = (user) => (dispatch) => {
   dispatch({ type: SIGN_IN_USER_PENDING });
 
-  fetch('http://localhost:3001/signin', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
+  fetch(`${API_URL}/signin`, { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
     .then(async response => {
       if (response.status === 401) {
         throw Error('Invalid username and password combination.');
@@ -115,7 +116,7 @@ export const signOutUser = () => (dispatch) => {
 export const registerUser = (user) => (dispatch) => {
   dispatch({ type: REGISTER_USER_PENDING });
 
-  fetch('http://localhost:3001/register', { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
+  fetch(`${API_URL}/register`, { method: 'POST', body: JSON.stringify(user), headers: { 'Content-Type': 'application/json' } })
     .then(async response => {
       const payload = await response.json();
       if (response.status >= 400) {
